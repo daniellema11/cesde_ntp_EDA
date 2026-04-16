@@ -68,9 +68,9 @@ st.header("👥 Equipo de Trabajo (Integrantes)")
 
 # Puedes ajustar los nombres aquí
 integrantes = [
-    {"nombre": "Integrante 1", "rol": "Analista de Datos", "emoji": "👨‍💻"},
-    {"nombre": "Integrante 2", "rol": "Ingeniero de Datos", "emoji": "👩‍🔬"},
-    {"nombre": "Integrante 3", "rol": "Arquitecto de Soluciones", "emoji": "👨‍💼"},
+    {"nombre": "Daniel lema", "rol": "Analista de Datos", "emoji": "👨‍💻"},
+    {"nombre": "Alejandra correa", "rol": "Ingeniero de Datos", "emoji": "👩‍🔬"},
+    {"nombre": "Leidys aparicio", "rol": "Arquitecto de Soluciones", "emoji": "👩‍🔬"},
 ]
 
 cols = st.columns(len(integrantes))

@@ -21,28 +21,28 @@ with st.container():
     st.header("🔍 1. Identificación y Contexto")
     contexto = st.text_area(
         "¿De qué se trata el dataset? (Deducción del origen, tema y propósito)",
-        placeholder="Ej: El dataset trata sobre accidentes de tránsito en Antioquia durante el año 2023...",
+        placeholder="Nuestra dataset se trata de los suicidios en colombia entre los años 2015-2025, el proposito es permitir el analisis de  este suceso, identificando patrones como el sexo, dia, la ciudad, manera de suicidio  y motivo del suceso, etc.",
         height=150
     )
 
     st.header("❗ 2. Calidad de los Datos")
     calidad = st.text_area(
         "¿Qué encontraste sobre los datos faltantes y la limpieza?",
-        placeholder="Ej: Se observó que la columna 'Causa' tiene un 20% de nulos, lo cual podría sesgar...",
+        placeholder="Los datos tienen un gran integridad, ya que cumple con todos los campos, por ello no debemos hacer limpieza.",
         height=150
     )
 
     st.header("📈 3. Hallazgos Estadísticos Key")
     estadisticas = st.text_area(
         "Interpretación de los números y categorías principales (Medias, modas, etc.)",
-        placeholder="Ej: La mayoría de incidentes ocurren en el municipio de Medellín (Moda) con un promedio diario de...",
+        placeholder="A partir del análisis del dataset, se identifican varios patrones relevantes. En cuanto a la edad, el grupo con mayor número de casos corresponde a personas entre 20 y 24 años, el genero mayoritario es masculino (hombres), la mayoria no termino la educacion primaria, el mes con mas sucesos es AGOSTO y el dia es el DOMINGO, el municipio mas impactado es bogota y segundo medellin, y el mecanismo causal general es (generadores de asfixia), el motivo del suceso es de conflictos con la pareja, entre otras cosas ",
         height=150
     )
 
     st.header("💡 4. Conclusión Final")
     conclusion = st.text_area(
         "¿Cuál es el mensaje principal que nos dan estos datos?",
-        placeholder="Ej: El dataset revela una alta concentración de eventos en áreas urbanas...",
+        placeholder="En conclusion, el dataset permite evidenciar que el suicidio es un fenómeno que presenta patrones claros según variables como la edad, el sexo y el motivo del suceso. Los datos muestran que no se distribuye de manera uniforme, sino que afecta más a ciertos grupos poblacionales. Esto resalta la importancia de analizar este tipo de información para apoyar la toma de decisiones y el diseño de estrategias de prevención más enfocadas.",
         height=100
     )
 
