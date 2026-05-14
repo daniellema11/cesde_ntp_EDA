@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import requests
+import plotly.graph_objects as go
 
 # Configuración de la página
 st.set_page_config(page_title="Sistema de Horarios CESDE - MockAPI", layout="wide")
@@ -321,6 +322,21 @@ else:
 
     st.subheader("Grafico de barras")
     st.bar_chart(chart_data, x=chart_col, y="Cantidad")
+
+    # Gráfico tipo dona después del gráfico de barras
+    st.subheader("Gráfico tipo Dona")
+    fig = go.Figure(data=[go.Pie(
+        labels=chart_data[chart_col],
+        values=chart_data["Cantidad"],
+        hole=0.3,
+        hovertemplate="<b>%{label}</b><br>Cantidad: %{value}<extra></extra>"
+    )])
+    fig.update_layout(
+        title="Distribución de datos",
+        height=500,
+        showlegend=True
+    )
+    st.plotly_chart(fig, use_container_width=True)
 
 # --- Información Técnica ---
 st.info(f"""
