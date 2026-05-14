@@ -3,6 +3,8 @@ import re
 
 import pandas as pd
 import streamlit as st
+import plotly.express as px
+import matplotlib.pyplot as plt
 
 
 st.set_page_config(page_title="Graficos de Suicidios", layout="wide")
@@ -282,3 +284,43 @@ if not map_rows:
 
 map_df = pd.DataFrame(map_rows)
 st.map(map_df, latitude="lat", longitude="lon", size="count")
+
+
+st.subheader("3. Grafico de dona:")
+st.markdown(f"Proporcion de registros por {column_name}.")
+
+top_n = 10
+counts_for_pie = counts.copy()
+if len(counts_for_pie) > top_n:
+	top = counts_for_pie.iloc[:top_n]
+	others = counts_for_pie.iloc[top_n:].sum()
+	counts_for_pie = pd.concat([top, pd.Series({"Otros": others})])
+
+def autopct_fmt(pct):
+	return f"{pct:.1f}%" if pct >= 2 else ""
+
+fig, ax = plt.subplots(figsize=(7, 7))
+wedges, _, _ = ax.pie(
+	counts_for_pie,
+	labels=None,
+	autopct=autopct_fmt,
+	startangle=90,
+	pctdistance=0.78,
+	wedgeprops=dict(width=0.35),
+	textprops={"fontsize": 9},
+)
+ax.axis("equal")
+legend_labels = [
+	f"{label} ({int(value)})"
+	for label, value in counts_for_pie.items()
+]
+ax.legend(
+	wedges,
+	legend_labels,
+	title=column_name,
+	loc="center left",
+	bbox_to_anchor=(1.02, 0.5),
+	fontsize=9,
+	title_fontsize=9,
+)
+st.pyplot(fig, use_container_width=True)
