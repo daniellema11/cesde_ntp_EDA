@@ -3,7 +3,6 @@ import re
 
 import pandas as pd
 import streamlit as st
-import plotly.express as px
 import matplotlib.pyplot as plt
 
 
@@ -157,7 +156,16 @@ st.bar_chart(
 	horizontal=False,
 )
 
-st.subheader("2. Mapa interactivo")
+st.subheader("2. Grafico de lineas:")
+st.markdown(f"Tendencia de cantidad por {column_name}.")
+
+st.line_chart(
+	chart_data,
+	x=column_name,
+	y="Cantidad",
+)
+
+st.subheader("3. Mapa interactivo")
 st.markdown("Distribucion geografica usando las mismas condiciones de filtro.")
 
 dept_col = "Departamento del hecho DANE"
@@ -286,7 +294,7 @@ map_df = pd.DataFrame(map_rows)
 st.map(map_df, latitude="lat", longitude="lon", size="count")
 
 
-st.subheader("3. Grafico de dona:")
+st.subheader("4. Grafico de dona:")
 st.markdown(f"Proporcion de registros por {column_name}.")
 
 top_n = 10
