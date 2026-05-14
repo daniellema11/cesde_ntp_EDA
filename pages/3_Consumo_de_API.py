@@ -122,6 +122,13 @@ if not df_horarioAdmin.empty:
                 st.subheader("Horarios por Día")
                 dia_counts = f_horarioAdmin['recurrenciaDiaAdmin'].value_counts()
                 st.bar_chart(dia_counts)
+        
+        # Gráfica de líneas: Tendencia de cantidad por día
+        if 'recurrenciaDiaAdmin' in f_horarioAdmin.columns:
+            st.subheader("Tendencia de Horarios por Día")
+            dia_counts_line = f_horarioAdmin['recurrenciaDiaAdmin'].value_counts().reset_index()
+            dia_counts_line.columns = ['Día', 'Cantidad']
+            st.line_chart(dia_counts_line, x='Día', y='Cantidad')
 else:
     st.info("💡 Esperando datos de 'horarioAdmin'... Verifica que la entidad exista en MockAPI.")
 
@@ -203,6 +210,13 @@ if not df_horarioProfesor.empty:
                 st.subheader("Horarios por Día")
                 dia_prof_counts = f_horarioProfesor['recurrenciaDiaProfes'].value_counts()
                 st.bar_chart(dia_prof_counts)
+        
+        # Gráfica de líneas: Tendencia de cantidad por día
+        if 'recurrenciaDiaProfes' in f_horarioProfesor.columns:
+            st.subheader("Tendencia de Horarios por Día")
+            dia_prof_counts_line = f_horarioProfesor['recurrenciaDiaProfes'].value_counts().reset_index()
+            dia_prof_counts_line.columns = ['Día', 'Cantidad']
+            st.line_chart(dia_prof_counts_line, x='Día', y='Cantidad')
         
         # Gráfico de estado activo/inactivo
         if 'activo' in df_horarioProfesor.columns:
@@ -323,20 +337,42 @@ else:
     st.subheader("Grafico de barras")
     st.bar_chart(chart_data, x=chart_col, y="Cantidad")
 
-    # Gráfico tipo dona después del gráfico de barras
-    st.subheader("Gráfico tipo Dona")
-    fig = go.Figure(data=[go.Pie(
-        labels=chart_data[chart_col],
-        values=chart_data["Cantidad"],
-        hole=0.3,
-        hovertemplate="<b>%{label}</b><br>Cantidad: %{value}<extra></extra>"
-    )])
-    fig.update_layout(
-        title="Distribución de datos",
-        height=500,
-        showlegend=True
-    )
-    st.plotly_chart(fig, use_container_width=True)
+    if not df_chart.empty:
+        st.subheader("Gráfico de líneas")
+        line_column_candidates = []
+        if data_choice == "Horarios Administrativos":
+            line_column_candidates = ["recurrenciaDiaAdmin", "horaInicio"]
+        else:
+            line_column_candidates = ["recurrenciaDiaProfes", "horaInicioProfesor"]
+
+        line_column = next((col for col in line_column_candidates if col in df_chart.columns), None)
+
+        if line_column is not None:
+            line_data = (
+                df_chart.groupby(line_column)
+                .size()
+                .reset_index(name="Cantidad")
+            )
+            st.line_chart(line_data, x=line_column, y="Cantidad")
+        else:
+            line_data = chart_data.sort_values(by=chart_col)
+            st.line_chart(line_data, x=chart_col, y="Cantidad")
+
+        st.subheader("Gráfico tipo Dona")
+        fig = go.Figure(data=[go.Pie(
+            labels=chart_data[chart_col],
+            values=chart_data["Cantidad"],
+            hole=0.3,
+            hovertemplate="<b>%{label}</b><br>Cantidad: %{value}<extra></extra>"
+        )])
+        fig.update_layout(
+            title="Distribución de datos",
+            height=500,
+            showlegend=True
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("No hay datos para el gráfico de líneas con los filtros actuales.")
 
 # --- Información Técnica ---
 st.info(f"""
@@ -346,4 +382,3 @@ st.info(f"""
 - **Horario Admin:** Información de horarios con sedes CESDE, aulas y profesores.
 - **Horario Profesor:** Información de horarios con institutos y estado activo/inactivo.
 """)
-
