@@ -339,28 +339,16 @@ else:
 
     if not df_chart.empty:
         st.subheader("Gráfico de líneas")
-        line_column_candidates = []
-        if data_choice == "Horarios Administrativos":
-            line_column_candidates = ["recurrenciaDiaAdmin", "horaInicio"]
-        else:
-            line_column_candidates = ["recurrenciaDiaProfes", "horaInicioProfesor"]
-
-        line_column = next((col for col in line_column_candidates if col in df_chart.columns), None)
-
-        if line_column is not None:
-            line_data = (
-                df_chart.groupby(line_column)
-                .size()
-                .reset_index(name="Cantidad")
-            )
-            st.line_chart(line_data, x=line_column, y="Cantidad")
-        else:
-            line_data = chart_data.sort_values(by=chart_col)
-            st.line_chart(line_data, x=chart_col, y="Cantidad")
+        line_data = chart_data.copy()
+        st.line_chart(line_data, x=chart_col, y="Cantidad")
 
         st.subheader("Gráfico tipo Dona")
+        legend_labels = [
+            f"{label} ({count})"
+            for label, count in zip(chart_data[chart_col], chart_data["Cantidad"])
+        ]
         fig = go.Figure(data=[go.Pie(
-            labels=chart_data[chart_col],
+            labels=legend_labels,
             values=chart_data["Cantidad"],
             hole=0.3,
             hovertemplate="<b>%{label}</b><br>Cantidad: %{value}<extra></extra>"
