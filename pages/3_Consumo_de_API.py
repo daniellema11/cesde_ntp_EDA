@@ -244,6 +244,84 @@ if not df_horarioAdmin.empty and not df_horarioProfesor.empty:
 else:
     st.info("Se necesitan datos de ambas entidades para mostrar la comparativa.")
 
+st.divider()
+
+# --- Sección 4: Graficos interactivos ---
+st.header("📊 Graficos interactivos")
+st.markdown("Filtros solo para los graficos (independientes de las tablas).")
+
+data_options = ["Horarios Administrativos", "Horarios de Profesores"]
+data_choice = st.selectbox("Fuente de datos", data_options, key="chart_data_source")
+
+df_chart_base = df_horarioAdmin if data_choice == "Horarios Administrativos" else df_horarioProfesor
+
+if df_chart_base.empty:
+    st.info("No hay datos disponibles para graficar.")
+else:
+    chart_columns = list(df_chart_base.columns)
+    default_chart_col = chart_columns[0]
+
+    chart_col = st.selectbox(
+        "Columna para grafico de barras",
+        options=chart_columns,
+        index=chart_columns.index(default_chart_col),
+        key="chart_col",
+    )
+
+    filter_columns = ["(Sin filtro)"] + chart_columns
+    filter_col_1 = st.selectbox(
+        "Filtro 1 - Columna",
+        options=filter_columns,
+        index=0,
+        key="chart_filter_col_1",
+    )
+
+    filter_values_1 = []
+    if filter_col_1 != "(Sin filtro)":
+        values_1 = sorted(df_chart_base[filter_col_1].dropna().astype(str).unique().tolist())
+        filter_values_1 = st.multiselect(
+            "Filtro 1 - Valores",
+            options=values_1,
+            key="chart_filter_values_1",
+        )
+
+    filter_col_2 = st.selectbox(
+        "Filtro 2 - Columna",
+        options=filter_columns,
+        index=0,
+        key="chart_filter_col_2",
+    )
+
+    filter_values_2 = []
+    if filter_col_2 != "(Sin filtro)":
+        values_2 = sorted(df_chart_base[filter_col_2].dropna().astype(str).unique().tolist())
+        filter_values_2 = st.multiselect(
+            "Filtro 2 - Valores",
+            options=values_2,
+            key="chart_filter_values_2",
+        )
+
+    df_chart = df_chart_base.copy()
+    if filter_col_1 != "(Sin filtro)" and filter_values_1:
+        df_chart = df_chart[df_chart[filter_col_1].astype(str).isin(filter_values_1)]
+    if filter_col_2 != "(Sin filtro)" and filter_values_2:
+        df_chart = df_chart[df_chart[filter_col_2].astype(str).isin(filter_values_2)]
+
+    series = (
+        df_chart[chart_col]
+        .fillna("Sin dato")
+        .astype(str)
+        .str.strip()
+        .replace("", "Sin dato")
+    )
+
+    counts = series.value_counts()
+    chart_data = counts.reset_index()
+    chart_data.columns = [chart_col, "Cantidad"]
+
+    st.subheader("Grafico de barras")
+    st.bar_chart(chart_data, x=chart_col, y="Cantidad")
+
 # --- Información Técnica ---
 st.info(f"""
 **Detalles de la API (MockAPI):**
