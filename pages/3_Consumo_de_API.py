@@ -15,8 +15,8 @@ En esta sección, consumiremos **dos entidades** personalizadas creadas en **Moc
 """)
 
 # --- Configuración de la API (MockAPI) ---
-MOCK_API_ID = "69d7ac5b9c5ebb0918c8298c" 
-MOCK_API_BASE_URL = f"https://{MOCK_API_ID}.mockapi.io"
+ 
+MOCK_API_BASE_URL = "http://localhost:8080"
 
 # --- Botón para Limpiar Caché ---
 if st.button("🔄 Refrescar Datos (Limpiar Caché)"):
@@ -26,7 +26,8 @@ if st.button("🔄 Refrescar Datos (Limpiar Caché)"):
 # --- Función para obtener datos de MockAPI ---
 @st.cache_data
 def get_mockapi_data(entity):
-    paths_to_try = [f"{MOCK_API_BASE_URL}/{entity}", f"{MOCK_API_BASE_URL}/api/v1/{entity}"]
+    # Se convierte la entidad a minúsculas para coincidir con las rutas del backend (ej: /horarioadmin)
+    paths_to_try = [f"{MOCK_API_BASE_URL}/{entity.lower()}", f"{MOCK_API_BASE_URL}/api/v1/{entity.lower()}"]
     
     last_error = ""
     for url in paths_to_try:
@@ -34,10 +35,29 @@ def get_mockapi_data(entity):
             response = requests.get(url, timeout=10)
             if response.status_code == 200:
                 data = response.json()
-                if isinstance(data, list):
-                    return pd.DataFrame(data)
-                else:
-                    return pd.DataFrame([data])
+                df = pd.DataFrame(data if isinstance(data, list) else [data])
+                
+                # Aplanar diccionarios anidados devueltos por el backend (relaciones @ManyToOne)
+                for col in list(df.columns):
+                    if df[col].apply(lambda x: isinstance(x, dict)).any():
+                        # 1. Expandir llaves internas a nuevas columnas (ej: identificacionPersona desde persona)
+                        expanded = df[col].apply(lambda x: x if isinstance(x, dict) else {})
+                        expanded_df = pd.DataFrame(expanded.tolist(), index=df.index)
+                        for new_col in expanded_df.columns:
+                            if new_col not in df.columns:
+                                df[new_col] = expanded_df[new_col]
+                                
+                        # 2. Reemplazar la columna objeto por un string/valor simple para evitar el error de "unhashable type: 'dict'"
+                        def dict_to_simple(d):
+                            if not isinstance(d, dict): return d
+                            str_vals = [v for v in d.values() if isinstance(v, str)]
+                            if str_vals: return str_vals[0]
+                            if d: return list(d.values())[0]
+                            return str(d)
+                        
+                        df[col] = df[col].apply(dict_to_simple)
+                        
+                return df
             else:
                 last_error = f"Status {response.status_code} en {url}"
         except Exception as e:
@@ -364,9 +384,9 @@ else:
 
 # --- Información Técnica ---
 st.info(f"""
-**Detalles de la API (MockAPI):**
+**Detalles de la API (Backend Local):**
 - **Base URL:** `{MOCK_API_BASE_URL}`
-- **Entidades:** `/horarioAdmin` y `/horarioProfesor`
+- **Entidades:** `/horarioadmin` y `/horarioprofesor`
 - **Horario Admin:** Información de horarios con sedes CESDE, aulas y profesores.
 - **Horario Profesor:** Información de horarios con institutos y estado activo/inactivo.
 """)
